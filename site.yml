@@ -1,0 +1,46 @@
+---
+
+- hosts: web_servers
+  become: true
+  tasks:
+  
+  - name: install apache and php packages
+    tags: apache,apache2,ubuntu
+    package:
+      name: 
+        - "{{ apache_package }}"
+        - "{{ php_package }}"
+      state: latest
+      update_cache: yes
+
+- hosts: db_servers
+  become: true
+  tasks:
+  
+  - name: install mariadb package
+    tags: db,mariadb,ubuntu
+    package:
+      name: 
+        - "{{ mariadb_package }}"
+      state: latest
+      update_cache: yes
+
+  - name: uninstall apache & php
+    package:
+      name:
+        - "{{ apache_package }}"
+        - "{{ php_package }}"
+
+- hosts: file_servers
+  become: true
+  tasks:
+  
+  - name: install samba package
+    tags: samba
+    package:
+      name: 
+        - "{{ samba_package }}"
+      state: latest
+      update_cache: yes
+
+
