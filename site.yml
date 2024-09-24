@@ -1,111 +1,41 @@
 ---
 
-- hosts: web_servers
+- hosts: all
   become: true
-  tasks:
-  
-  - name: install apache and php packages
-    tags: apache,apache2,ubuntu
-    package:
-      name: 
-        - "{{ apache_package }}"
-        - "{{ php_package }}"
-      state: latest
-      update_cache: yes
-  - name: copy default html file for site
-    tags: apache,apache2,ubuntu
-    copy:
-      src: default_site.html
-      dest: /var/www/html/index.html
-      owner: root
-      group: root
-      mode: 0644
-  - name: Change Timeout Value
-    tags: apache,apache2,ubuntu
-    lineinfile:
-      path: /etc/apache2/apache2.conf
-      regexp: '^Timeout'
-      line: Timeout 300
+  pre_tasks:
 
-  - name: restart apache2 ubuntu
-    tags: apache,apache2,ubuntu
-    service:
-      name: apache2
-      state: restarted
-      enabled: true
+    - name: Update repository index
+      tags: always
+      package:
+        update_cache: yes
+      changed_when: false
 
-- hosts: db_servers
-  become: true
-  tasks:
-  
-  - name: install mariadb package
-    tags: db,mariadb,ubuntu
-    package:
-      name: 
-        - "{{ mariadb_package }}"
-      state: latest
-      update_cache: yes
-
-  - name: uninstall apache & php
-    package:
-      name:
-        - "{{ apache_package }}"
-        - "{{ php_package }}"
-
-- hosts: file_servers
-  become: true
-  tasks:
-  
-  - name: install samba package
-    tags: samba
-    package:
-      name: 
-        - "{{ samba_package }}"
-      state: latest
-      update_cache: yes
-
-- hosts: workstations
-  become: true
-  tasks:
-  
-  - name: install unzip package
-    tags: unzip,ubuntu
-    package:
-      name: unzip
-      state: latest
-      update_cache: yes
-
-  - name: install terraform
-    unarchive:
-      src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
-      dest: /usr/local/bin
-      remote_src: yes
-      mode: 0755
-      owner: root
-      group: root
 
 - hosts: all
   become: true
-  tasks:
+  roles:
+    - base
 
-    - name: Create simone user
-      tags: always
-      user:
-        name: simone
-        groups: root
 
-    - name: Add ssh key for simone
-      tags: always
-      authorized_key:
-        user: simone
-        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHNBaBrYJALJFqMbKO6sbHlSEDNJSN3p3P0+QQsXwRr8 ansible"
+- hosts: all
+  become: true
+  roles:
+    - workstations
 
-    - name: Add sudoers file for simone
-      tags: always
-      copy:
-        src: sudoer_simone
-        dest: /etc/sudoers.d/simone
-        owner: root
-        group: root
-        mode: 0440
+- hosts: all
+  become: true
+  roles:
+    - web_servers
+
+- hosts: all
+  become: true
+  roles:
+    - db_servers
+
+
+- hosts: all
+  become: true
+  roles:
+    - file_servers
+
 
