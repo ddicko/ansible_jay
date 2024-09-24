@@ -1,0 +1,26 @@
+---
+- name: Créer une VM sur Proxmox
+  hosts: proxmox
+  tasks:
+    - set_fact:
+        yeppers: "freshbakedvm-ubuntu"
+    - proxmox_kvm:
+        api_user: "root@pam"
+        api_password: "dicko"
+        api_host: "10.172.28.8"
+        node: "proxmox"
+        storage: "local-lvm"
+        clone: "ubuntu22"
+        format: "iso"
+        name: "{{ yeppers }}"
+        timeout: 500
+ 
+    - name: Créer une VM Proxmox
+      proxmox_kvm:
+        api_user: "root@pam"
+        api_password: "dicko"
+        api_host: "10.172.28.8"
+        node: "proxmox"
+        vmid: 101
+        name: "ubuntu_server_2204"
+        state: "started"
