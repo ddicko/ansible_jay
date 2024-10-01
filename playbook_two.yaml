@@ -1,0 +1,13 @@
+- name:  demonstrate failing tasks
+  gather_facts: no
+  become: true
+  ignore_errors: yes
+  hosts: web_servers 
+  tasks:
+  - name: creating users the wrong way
+    user:
+      name: anna
+  - debug:
+      msg: run me again andsee if you get here
+
+

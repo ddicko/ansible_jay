@@ -11,4 +11,7 @@
 10.172.28.220
 
 [proxmox]
-10.172.28.8
+10.172.28.8 ansible_python_interpreter=.venv/bin/python3
+
+[clients_docker]
+10.172.28.210

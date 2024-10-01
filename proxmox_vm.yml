@@ -1,6 +1,10 @@
 ---
 - name: Créer une VM sur Proxmox
   hosts: proxmox
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+#    pip_install_packages:
+#      - name: proxmoxer
   tasks:
     - set_fact:
         yeppers: "freshbakedvm-ubuntu"
@@ -11,7 +15,7 @@
         node: "proxmox"
         storage: "local-lvm"
         clone: "ubuntu22"
-        format: "iso"
+        format: "qcow2"
         name: "{{ yeppers }}"
         timeout: 500
  

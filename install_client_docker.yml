@@ -1,0 +1,51 @@
+---
+
+- hosts: clients_docker
+  become: true
+  tasks:
+  - name: Create directory for Docker systemd override
+    file:
+      path: /etc/systemd/system/docker.service.d
+      state: directory
+      mode: '0755'
+
+  - name: Copy proxy file 
+    tags: copy file
+    copy:                                                                                                                               
+      src: proxy.conf                                                                                                            
+      dest: /etc/systemd/system/docker.service.d/http-proxy.conf                                                                                                    
+      owner: root                                                                                                                       
+      group: root
+      mode: 0644
+
+  - name: Download CA certificate from proxy
+    ansible.builtin.get_url:
+      url: http://smtd.staging.cloud:3128/ca.crt
+      dest: /usr/share/ca-certificates/docker_registry_proxy.crt
+    notify:
+      - Reload daemon
+      - Restart Docker service
+      - Update CA certificates
+
+  - name: Append the CA certificate to the trusted certificates configuration
+    lineinfile:
+      path: /etc/ca-certificates.conf
+      line: "docker_registry_proxy.crt"
+      create: yes
+
+  handlers:
+    - name: Restart Docker service
+      service:
+        name: docker
+        state: restarted
+
+    - name: Reload daemon
+      command: systemctl daemon-reload
+
+    - name: Update CA certificates
+      command: update-ca-certificates --fresh
+
+
+
+
+
